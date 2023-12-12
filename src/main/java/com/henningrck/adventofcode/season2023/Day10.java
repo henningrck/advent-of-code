@@ -41,7 +41,44 @@ public class Day10 implements Day<char[][], Integer> {
 
     @Override
     public Integer solvePart2(char[][] chars) {
-        return 0;
+        List<LoopSegment> loopSegments = walkLoop(chars);
+        int result = 0;
+
+        for (int y = 0; y < chars.length; y++) {
+            boolean inside = false;
+            boolean isLine = false;
+            boolean fromTop = false;
+
+            for (int x = 0; x < chars[y].length; x++) {
+                LoopSegment loopSegment = new LoopSegment(x, y);
+                char current = getCharSafe(chars, loopSegment);
+
+                if (!loopSegments.contains(loopSegment)) {
+                    current = NOTHING;
+                }
+
+                switch (current) {
+                    case BOTTOM_LEFT, TOP_LEFT -> {
+                        isLine = true;
+                        fromTop = current == BOTTOM_LEFT;
+                    }
+                    case BOTTOM_RIGHT, TOP_RIGHT -> {
+                        isLine = false;
+                        if ((fromTop && current == TOP_RIGHT) || (!fromTop && current == BOTTOM_RIGHT)) {
+                            inside = !inside;
+                        }
+                    }
+                    case VERTICAL -> inside = !inside;
+                    case NOTHING -> {
+                        if (!isLine && inside) {
+                            result++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     private List<LoopSegment> walkLoop(char[][] chars) {
